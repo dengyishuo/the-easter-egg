@@ -204,6 +204,21 @@ def split_sections(path):
     return secs
 
 
+def split_sections_md(path):
+    """按一级标题切分，返回 [(title, 原始 Markdown 正文)]"""
+    with open(path, encoding="utf-8") as f:
+        text = f.read()
+    chunks = re.split(r"^#\s+", text, flags=re.M)
+    secs = []
+    for ch in chunks:
+        ch = ch.strip()
+        if not ch:
+            continue
+        first, _, rest = ch.partition("\n")
+        secs.append((first.strip(), rest.strip()))
+    return secs
+
+
 # ---------------- 构建 ----------------
 
 def build():
@@ -282,10 +297,28 @@ def build():
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(out_html)
 
-    # 合并 Markdown
-    md_parts = [f"# {BOOK_TITLE}：{BOOK_SUB}\n\n**{BOOK_EN}: {BOOK_EN_SUB}**\n\n"]
-    for d in docs:
-        md_parts.append(f"# {d['title']}\n\n{d['html']}\n\n")
+    # 合并 Markdown（用原始 Markdown 正文，不混入 HTML）
+    md_parts = [f"# {BOOK_TITLE}：{BOOK_SUB}\n\n**{BOOK_EN}: {BOOK_EN_SUB}**\n\n"
+                f"> 作者：{AUTHOR}\n\n---\n"]
+    last_part = None
+    seq = 0
+    for fname, part in ORDER:
+        p = os.path.join(DRAFT, fname)
+        if not os.path.exists(p):
+            continue
+        if part and part != last_part:
+            last_part = part
+            md_parts.append(f"\n---\n\n# {part}\n")
+        for title, raw in split_sections_md(p):
+            disp = re.sub(r"^第[一二三四五六七八九十]+章[\s\u3000]*", "", title) if part else title
+            # 章标题统一用 ##，正文内的小节整体降一级，避免层级冲突
+            raw = re.sub(r"^(#{2,5})[ \t]", lambda m: "#" * (len(m.group(1)) + 1) + " ", raw, flags=re.M)
+            if part:
+                seq += 1
+                md_parts.append(f"\n## {seq:02d}　{disp}\n")
+            else:
+                md_parts.append(f"\n## {disp}\n")
+            md_parts.append(raw + "\n")
     with open(os.path.join(OUT, "彩蛋-影响世界的顶级商人.md"), "w", encoding="utf-8") as f:
         f.write("\n".join(md_parts))
 
