@@ -297,6 +297,13 @@ def build():
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(out_html)
 
+    # GitHub Pages 入口：同一份内容写一份 index.html（ASCII 文件名）
+    with open(os.path.join(OUT, "index.html"), "w", encoding="utf-8") as f:
+        f.write(out_html)
+
+    # 关闭 Jekyll 处理，避免带中文名的文件被预处理
+    open(os.path.join(OUT, ".nojekyll"), "w").close()
+
     # 合并 Markdown（用原始 Markdown 正文，不混入 HTML）
     md_parts = [f"# {BOOK_TITLE}：{BOOK_SUB}\n\n**{BOOK_EN}: {BOOK_EN_SUB}**\n\n"
                 f"> 作者：{AUTHOR}\n\n---\n"]
@@ -491,6 +498,9 @@ tbody tr:hover{background:rgba(138,90,31,.05)}
   background:var(--paper);padding:16vh 8vw;text-align:center;border-top:1px solid var(--rule)
 }
 .colophon p{font-family:var(--sans);font-size:11px;letter-spacing:.26em;color:var(--ink-3);line-height:2.6;margin:0}
+.colophon .dl{letter-spacing:.12em;margin-top:2.4em}
+.colophon .dl a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--rule);padding-bottom:1px}
+.colophon .dl a:hover{border-bottom-color:var(--accent)}
 
 /* 工具 */
 #tools{position:fixed;right:20px;bottom:20px;display:flex;flex-direction:column;gap:8px;z-index:60}
@@ -609,6 +619,7 @@ __BODY__
 <section class="colophon">
   <p>彩 蛋 · 影 响 世 界 的 顶 级 商 人</p>
   <p>正文约 __CHARS__ 千字　|　单行本　__DATE__</p>
+  <p class="dl">也 可 下 载 电 子 书：<a href="彩蛋-影响世界的顶级商人.epub" download>EPUB</a>　·　<a href="彩蛋-影响世界的顶级商人.md" download>Markdown</a></p>
 </section>
 
 <div id="tools">
