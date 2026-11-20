@@ -6,6 +6,17 @@
 
 ---
 
+## 阅读与下载
+
+| 形式 | 地址 |
+|---|---|
+| **在线阅读**（带侧栏目录，可切明暗、可打印存 PDF） | <https://dengyishuo.github.io/the-easter-egg/> |
+| **EPUB 电子书**（手机、Kindle、Apple Books） | [下载](output/彩蛋-影响世界的顶级商人.epub) |
+| **单页 HTML**（离线可读，无外部依赖） | [下载](output/彩蛋-影响世界的顶级商人.html) |
+| **Markdown 全文** | [下载](output/彩蛋-影响世界的顶级商人.md) |
+
+EPUB 已通过官方 [epubcheck 5.1.0](https://github.com/w3c/epubcheck) 校验：0 错误、0 警告。
+
 ## 主线：落差 + 私利公益
 
 《隐线》问"技术把哪项成本压下去了"。这本书问：**钱和水，是怎么流进普通人生活的。**
@@ -76,3 +87,21 @@ the-easter-egg/
 ## 与《隐线》的关系
 
 《隐线》写"物"——技术如何压低成本；这本书写"人"——谁在落差里谋生，又是谁把谋生变成了改写世界的作品。前者是水，后者是水里的鱼。
+
+## 工程结构
+
+```
+draft/     31 个分章 Markdown（正文、附录、参考文献）
+media/     cover.png —— EPUB 封面图，1600×2400
+output/    构建产物：HTML、index.html（Pages 入口）、EPUB、合并 Markdown
+script/    build.py（网页）· build_epub.py（电子书）
+```
+
+两行命令重建全部产物：
+
+```bash
+python3 script/build.py        # output/*.html + index.html + *.md
+python3 script/build_epub.py   # output/*.epub
+```
+
+`draft/` 改名或增删章节后，只需改 `build.py` 里的 `ORDER` 与 `PART_SUB`，两个脚本会同步生效。推送 master 后，GitHub Actions 会自动重建并发布到 Pages。
